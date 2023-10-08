@@ -47,7 +47,9 @@ let get_by_term _request =
       in
       let json_response = `List [ person_to_yojson person ] in
       Dream.json (Yojson.Safe.to_string json_response)
-  | None -> Dream.empty `Bad_Request
+  | None -> 
+          Dream.warning (fun log -> log "Search term not informed!");
+          Dream.empty `Bad_Request
 
 let count _request = Dream.respond "5"
 
