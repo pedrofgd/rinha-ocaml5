@@ -1,6 +1,8 @@
 (executable
- (public_name rinha_ocaml5) 
+ (public_name rinha_ocaml5)
  (name main)
- (libraries dream uuidm yojson core ppx_deriving_yojson.runtime)
+ (libraries rinha_ocaml5 dream uuidm yojson ppx_deriving_yojson.runtime)
  (preprocess
   (pps lwt_ppx ppx_deriving_yojson)))
+
+(data_only_dirs lib node_modules)

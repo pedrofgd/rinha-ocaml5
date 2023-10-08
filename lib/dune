@@ -1,2 +1,2 @@
 (library
- (name dune_example))
+ (name rinha_ocaml5))

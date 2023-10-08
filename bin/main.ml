@@ -14,11 +14,7 @@ let create_handler _request =
   Dream.log "create_handler initialized";
   let uuid = generate_uuid in
   let location = String.cat "/pessoas/" uuid in
-  let response =
-    Dream.response ~status:`Created "created"
-      ~headers:[ ("Location", location) ]
-  in
-  Lwt.return response
+  Dream.respond ~status:`Created "created" ~headers:[ ("Location", location) ]
 
 let get_by_id _request =
   Dream.log "get_by_id initialized";
@@ -56,7 +52,9 @@ let get_by_term _request =
 let count _request = Dream.respond "5"
 
 let () =
-  Dream.run ~port:9999 @@ Dream.logger
+  Dream.run ~port:9999 ~interface:"0.0.0.0"
+    ~error_handler:Dream.debug_error_handler
+  @@ Dream.logger
   @@ Dream.router
        [
          Dream.post "/pessoas" create_handler;
