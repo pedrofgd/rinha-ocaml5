@@ -1,7 +1,7 @@
 (executable
  (public_name rinha_ocaml5)
  (name main)
- (libraries rinha_ocaml5 dream uuidm yojson ppx_deriving_yojson.runtime)
+ (libraries rinha_ocaml5 dream uuidm yojson ppx_deriving_yojson.runtime caqti-driver-sqlite3)
  (preprocess
   (pps lwt_ppx ppx_deriving_yojson)))
 

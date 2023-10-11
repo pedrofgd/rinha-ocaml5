@@ -16,6 +16,7 @@ depends: [
   "uuidm"
   "yojson"
   "ppx_deriving_yojson"
+  "caqti-driver-sqlite3"
   "odoc" {with-doc}
 ]
 build: [

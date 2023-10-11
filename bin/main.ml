@@ -1,3 +1,7 @@
+module type DB = Caqti_lwt.CONNECTION
+
+module T = Caqti_type
+
 type person = {
   id : string option;
   nome : string option;
@@ -7,12 +11,50 @@ type person = {
 }
 [@@deriving yojson]
 
-let generate_uuid =
-  Uuidm.to_string ~upper:true (Uuidm.v (`V3 (Uuidm.ns_dns, "www.example.org")))
+let generate_uuid () = Uuidm.to_string ~upper:true (Uuidm.v `V4)
 
-let create_handler _request =
+let format_stack items =
+  let rec fmt items acc =
+    match items with
+    | [] -> Some acc
+    | [ t ] -> fmt [] (acc ^ t)
+    | t :: hd -> fmt hd (acc ^ t ^ ";")
+  in
+  fmt items ""
+
+let add_person uuid nome apelido nascimento stack =
+  let query =
+    let open Caqti_request.Infix in
+    (T.(
+       tup2 string
+         T.(
+           tup4
+             T.(option string)
+             T.(option string)
+             T.(option string)
+             T.(option string)))
+    ->. T.unit)
+      "INSERT INTO persons (id, nickname, name, birthdate, stack) VALUES (?, \
+       ?, ?, ?, ?)"
+  in
+  fun (module Db : DB) ->
+    let open Lwt.Syntax in
+    let* unit_or_error =
+      Db.exec query (uuid, (apelido, nome, nascimento, stack))
+    in
+    Caqti_lwt.or_fail unit_or_error
+
+let create _request =
   Dream.log "create_handler initialized";
-  let uuid = generate_uuid in
+  let uuid = generate_uuid () in
+  let nome = Some "Pedro" in
+  let apelido = Some "pedrofgd" in
+  let nascimento = Some "2001-12-25" in
+  let stack = format_stack [ "OCaml" ] in
+  let open Lwt.Syntax in
+  let* () =
+    Dream.sql _request (add_person uuid nome apelido nascimento stack)
+  in
   let location = String.cat "/pessoas/" uuid in
   Dream.respond ~status:`Created "created" ~headers:[ ("Location", location) ]
 
@@ -38,7 +80,7 @@ let get_by_term _request =
   | Some search_term ->
       let person =
         {
-          id = Some generate_uuid;
+          id = Some (generate_uuid ());
           nome = None;
           apelido = Some search_term;
           nascimento = None;
@@ -47,18 +89,19 @@ let get_by_term _request =
       in
       let json_response = `List [ person_to_yojson person ] in
       Dream.json (Yojson.Safe.to_string json_response)
-  | None -> 
-          Dream.warning (fun log -> log "Search term not informed!");
-          Dream.empty `Bad_Request
+  | None ->
+      Dream.warning (fun log -> log "Search term not informed!");
+      Dream.empty `Bad_Request
 
 let count _request = Dream.respond "5"
 
 let () =
   Dream.run ~port:9999 ~interface:"0.0.0.0"
   @@ Dream.logger
+  @@ Dream.sql_pool "sqlite3:db.sqlite"
   @@ Dream.router
        [
-         Dream.post "/pessoas" create_handler;
+         Dream.post "/pessoas" create;
          Dream.get "/pessoas/:id" get_by_id;
          Dream.get "/pessoas" get_by_term;
          Dream.get "/contagem-pessoas" count;
