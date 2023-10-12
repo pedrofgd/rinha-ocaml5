@@ -17,8 +17,8 @@ let format_stack items =
   let rec fmt items acc =
     match items with
     | [] -> Some acc
-    | [ t ] -> fmt [] (acc ^ t)
-    | t :: hd -> fmt hd (acc ^ t ^ ";")
+    | [ hd ] -> fmt [] (acc ^ hd)
+    | hd :: t -> fmt t (acc ^ hd ^ ";")
   in
   fmt items ""
 
@@ -98,7 +98,7 @@ let count _request = Dream.respond "5"
 let () =
   Dream.run ~port:9999 ~interface:"0.0.0.0"
   @@ Dream.logger
-  @@ Dream.sql_pool "sqlite3:db.sqlite"
+  @@ Dream.sql_pool "postgresql://dream:password@db/dream"
   @@ Dream.router
        [
          Dream.post "/pessoas" create;

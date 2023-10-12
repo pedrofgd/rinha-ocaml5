@@ -1,7 +1,7 @@
 FROM ocaml/opam:alpine as build
 
 # Install system dependencies
-RUN sudo apk add --update libev-dev openssl-dev
+RUN sudo apk add --update libev-dev openssl-dev pkgconf postgresql14-dev
 
 WORKDIR /home/opam
 
@@ -16,7 +16,7 @@ RUN opam exec -- dune build
 
 FROM alpine:3.18 as run
 
-RUN apk add --update libev
+RUN apk add --update libev libpq
 
 COPY --from=build /home/opam/_build/default/bin/main.exe /bin/rinha_ocaml5
 

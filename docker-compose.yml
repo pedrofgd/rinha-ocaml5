@@ -1,7 +1,17 @@
-version: "3"
+version: "3.5"
 
 services:
+  db:
+    image: postgres:latest
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_USER=dream
+      - POSTGRES_PASSWORD=password
+      - POSTRES_DB=dream
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
   web:
     build: .
     ports:
-      - "9999:9999"
+      - 9999:9999

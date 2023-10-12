@@ -19,7 +19,8 @@
  (name rinha_ocaml5)
  (synopsis "A short synopsis")
  (description "A longer description")
- (depends ocaml dune dream uuidm yojson ppx_deriving_yojson caqti-driver-sqlite3)
+ (depends ocaml dune dream uuidm yojson ppx_deriving_yojson 
+   caqti-driver-postgresql)
  (tags
   (topics "to describe" your project)))
 
