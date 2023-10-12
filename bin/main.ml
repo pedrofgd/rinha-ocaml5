@@ -93,7 +93,22 @@ let get_by_term _request =
       Dream.warning (fun log -> log "Search term not informed!");
       Dream.empty `Bad_Request
 
-let count _request = Dream.respond "5"
+let count_people =
+    let query =
+        let open Caqti_request.Infix in
+        (T.unit ->! T.int)
+        "SELECT COUNT(*) FROM persons;" in
+    fun (module Db : DB) ->
+        let open Lwt.Syntax in
+        let* count_or_error = Db.find query () in
+        Caqti_lwt.or_fail count_or_error
+
+
+let count _request = 
+    Dream.log "count initialized";
+    let open Lwt.Syntax in
+    let* result = Dream.sql _request count_people in
+    Dream.respond (string_of_int result)
 
 let () =
   Dream.run ~port:9999 ~interface:"0.0.0.0"

@@ -3,8 +3,12 @@
 
 Implementation of https://github.com/zanfranceschi/rinha-de-backend-2023-q3/tree/main
 
-## SQLite3 (temporary)
+## PostgreSQL
 
-`sqlite3 db.sqlite < init.sql` to create the database.
+Run `sh sample-pgdb.sh` to create a container for testing.
+`docker-compose.yml` will also create a db container. Use `sh deploy.sh` to up containers.
 
-use `sqlite3 db.sqlite` to access and run commandsm, like: `.table;` (list tables) and `PRAGMA table_info(persons);` (show table schema).
+**Note:** For running outside Docker, the connection string should be:
+```
+postgresql://dream:password@127.0.0.1:5432/dream
+```
